@@ -40,12 +40,8 @@ class Transactor(object):
 
         self._add_transaction(source, destination, amount)
 
-    def get_previous_transactions(self):
-        """returns a list of all previous transactions as dicts in the form {source: str, destination: str, amount: float}"""
-        return self.db.get_all_transactions()
-
     @staticmethod
-    def get_address_balance(address, transactions):
+    def _calc_address_balance(address, transactions):
         in_amount = sum(t['amount'] for t in transactions if t['destination'] == address) or 0.0
         out_amount = sum(t['amount'] for t in transactions if t['source'] == address) or 0.0
         return in_amount - out_amount
@@ -53,8 +49,8 @@ class Transactor(object):
     def _source_credit_is_valid(self, source_address, amount):
         """Validates that the source address has the necessary funds to perform the required transaction"""
 
-        transactions = self.get_previous_transactions()
-        balance = self.get_address_balance(source_address, transactions)
+        transactions = self.db.get_all_transactions()
+        balance = self._calc_address_balance(source_address, transactions)
         self.logger.debug("Source {} balance: {}{}s".format(source_address, balance, self.coin_type))
 
         return amount <= balance
