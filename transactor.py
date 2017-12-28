@@ -31,12 +31,17 @@ class Transactor(object):
         """
         Validate and persist a transaction between source and destination addresses
         :param source: the giving party
+        :type source: unicode
         :param destination: the receiving party
+        :type destination: unicode
         :param amount: amount of coins for the transaction
+        :type amount: int or float
         """
         amount = float(amount)
         if not self._source_credit_is_valid(source, amount):
-            raise InvalidTransaction("source {} credit cannot support the required transaction".format(source))
+            raise InvalidTransaction(
+                "source '{}' credit cannot support the required transaction".format(source.encode('utf-8'))
+            )
 
         self._add_transaction(source, destination, amount)
 
@@ -51,7 +56,7 @@ class Transactor(object):
 
         transactions = self.db.get_all_transactions()
         balance = self._calc_address_balance(source_address, transactions)
-        self.logger.debug("Source {} balance: {}{}s".format(source_address, balance, self.coin_type))
+        self.logger.debug("Source {} balance: {}{}s".format(source_address.encode('utf-8'), balance, self.coin_type))
 
         return amount <= balance
 

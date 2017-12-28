@@ -11,10 +11,11 @@ class Database(object):
     def get_all_transactions(self):
         with open(self.file_name) as f:
             reader = csv.DictReader(f)
-            return [
-                {'source': t['source'] or None, 'destination': t['destination'],'amount': float(t['amount'])}
-                for t in reader
-            ]
+            return [{
+                'source': t['source'].decode('utf-8') or None,
+                'destination': t['destination'].decode('utf-8'),
+                'amount': float(t['amount'])
+            } for t in reader]
 
     def add_transaction(self, source, destination, amount):
         if random() > 0.9:
@@ -22,12 +23,21 @@ class Database(object):
 
         transactions = self.get_all_transactions()
         transactions.append({'source': source, 'destination': destination,'amount': amount})
+        transactions = self._prep_transactions_to_db(transactions)
         with open(self.file_name, 'w') as f:
             writer = csv.DictWriter(f, fieldnames=('source', 'destination', 'amount'))
             writer.writeheader()
             writer.writerows(transactions)
 
         return True
+
+    @staticmethod
+    def _prep_transactions_to_db(transactions):
+        return [{
+            'source': t['source'].encode('utf-8') if t['source'] else None,
+            'destination': t['destination'].encode('utf-8'),
+            'amount': t['amount']
+        } for t in transactions]
 
 
 class DatabaseError(Exception):
