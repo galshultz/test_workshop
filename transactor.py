@@ -38,11 +38,7 @@ class Transactor(object):
         :type amount: int or float
         """
         amount = float(amount)
-        if not self._source_credit_is_valid(source, amount):
-            raise InvalidTransaction(
-                "source '{}' credit cannot support the required transaction".format(source.encode('utf-8'))
-            )
-
+        self._validate_transaction(source, destination, amount)
         self._add_transaction(source, destination, amount)
 
     @staticmethod
@@ -50,6 +46,18 @@ class Transactor(object):
         in_amount = sum(t['amount'] for t in transactions if t['destination'] == address) or 0.0
         out_amount = sum(t['amount'] for t in transactions if t['source'] == address) or 0.0
         return in_amount - out_amount
+
+    def _validate_transaction(self, source, destination, amount):
+        if not self._not_self_transaction(source, destination):
+            raise InvalidTransaction("does not support self transactions")
+
+        if not self._source_credit_is_valid(source, amount):
+            raise InvalidTransaction(
+                "source '{}' credit cannot support the required transaction".format(source.encode('utf-8'))
+            )
+
+    def _not_self_transaction(self, source, destination):
+        return source != destination
 
     def _source_credit_is_valid(self, source_address, amount):
         """Validates that the source address has the necessary funds to perform the required transaction"""
