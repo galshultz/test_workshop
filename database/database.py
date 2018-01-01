@@ -39,6 +39,12 @@ class Database(object):
             'amount': t['amount']
         } for t in transactions]
 
+    def __del__(self):
+        if self.file_name == 'database/coins/test.csv':
+            print "purge test db"
+            with open(self.file_name, 'w') as f:
+                f.write('source,destination,amount\n')
+
 
 class DatabaseError(Exception):
     pass
