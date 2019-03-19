@@ -48,5 +48,3 @@ class Database(object):
 
 class DatabaseError(Exception):
     pass
-
-# class test():
