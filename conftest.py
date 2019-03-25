@@ -1,7 +1,7 @@
 import pytest
 
 @pytest.fixture
-def mock_get_all_transactions():
+def get_all_transactions():
     return [
                 {'source': None, 'amount': 100.0, 'destination': 'a'},
                 {'source': None, 'amount': 100.0, 'destination': 'b'},

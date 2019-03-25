@@ -13,26 +13,24 @@ class TestTransactorInit(object):
             transactor.Transactor('moshe')
 
 class TestPartyBalance(object):
-    def test__calc_address_balance_with_existing_source(self, mock_db_transaction_source_present):
-        with mock.patch('database.Database.get_all_transactions') as mock_database:
-            mock_database.return_value = mock_db_transaction_source_present
-            transactions = mock_database.return_value
+    def test__calc_address_balance_with_existing_source(self, get_all_transactions):
+        with mock.patch('database.Database.get_all_transactions') as mock_get_all_transactions:
+            mock_get_all_transactions.return_value = get_all_transactions
             transactor_test = transactor.Transactor('test')
-            assert -100 == transactor_test._calc_address_balance('a',transactions)
+            assert 90 == transactor_test._calc_address_balance('a',mock_get_all_transactions.return_value)
 
-    def test__calc_address_balance_with_no_existing_source(self, mock_db_transaction_source_not_present):
-        with mock.patch('database.Database.get_all_transactions') as mock_database:
-            mock_database.return_value = mock_db_transaction_source_not_present
-            transactions = mock_database.return_value
+    def test__calc_address_balance_with_no_existing_source(self, get_all_transactions):
+        with mock.patch('database.Database.get_all_transactions') as mock_get_all_transactions:
+            mock_get_all_transactions.return_value = get_all_transactions
             transactor_test = transactor.Transactor('test')
             with pytest.raises(AssertionError):
-                assert -100 == transactor_test._calc_address_balance('a',transactions)
+                assert -100 == transactor_test._calc_address_balance('c',mock_get_all_transactions.return_value)
 
 class TestAddTransactionFails(object):
-    def test_add_transaction_one_fail(self,mock_db_get_all_transactions):
+    def test_add_transaction_one_fail(self,get_all_transactions):
         with mock.patch('database.Database.add_transaction') as mock_add_transaction:
             with mock.patch('database.Database.get_all_transactions') as mock_get_all_trnasactions:
-                mock_get_all_trnasactions.return_value = mock_db_get_all_transactions
+                mock_get_all_trnasactions.return_value = get_all_transactions
                 mock_add_transaction.side_effect = [DatabaseError, None]
                 transactor_test = transactor.Transactor('test')
 
@@ -42,10 +40,10 @@ class TestAddTransactionFails(object):
 
                 assert transactor_test.add_transaction(source,destination,amount) == None
 
-    def test_add_transaction_all_fail(self,mock_db_get_all_transactions):
+    def test_add_transaction_all_fail(self,get_all_transactions):
         with mock.patch('database.Database.add_transaction') as mock_add_transaction:
             with mock.patch('database.Database.get_all_transactions') as mock_get_all_trnasactions:
-                mock_get_all_trnasactions.return_value = mock_db_get_all_transactions
+                mock_get_all_trnasactions.return_value = get_all_transactions
                 mock_add_transaction.side_effect = DatabaseError
                 transactor_test = transactor.Transactor('test')
 
@@ -56,10 +54,10 @@ class TestAddTransactionFails(object):
                 with pytest.raises(transactor.TransactorGeneralError):
                         transactor_test.add_transaction(source,destination,amount)
 
-    def test_add_transaction_all_fail(self,mock_db_get_all_transactions):
+    def test_add_transaction_3_retry_attempts(self,get_all_transactions):
         with mock.patch('database.Database.add_transaction') as mock_add_transaction:
             with mock.patch('database.Database.get_all_transactions') as mock_get_all_trnasactions:
-                mock_get_all_trnasactions.return_value = mock_db_get_all_transactions
+                mock_get_all_trnasactions.return_value = get_all_transactions
                 mock_add_transaction.side_effect = DatabaseError
                 transactor_test = transactor.Transactor('test')
 
@@ -72,10 +70,10 @@ class TestAddTransactionFails(object):
                 assert mock_add_transaction.call_count == 3
 
 class TestAddTransactionSuccess(object):
-    def test_add_transaction_success(self,mock_db_get_all_transactions):
+    def test_add_transaction_success(self,get_all_transactions):
         with mock.patch('database.Database.add_transaction') as mock_add_transaction:
             with mock.patch('database.Database.get_all_transactions') as mock_get_all_trnasactions:
-                mock_get_all_trnasactions.return_value = mock_db_get_all_transactions
+                mock_get_all_trnasactions.return_value = get_all_transactions
                 transactor_test = transactor.Transactor('test')
                 mock_add_transaction.return_value = True
 
