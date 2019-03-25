@@ -13,14 +13,14 @@ class TestTransactorInit(object):
             transactor.Transactor('moshe')
 
 class TestPartyBalance(object):
-    def test__calc_address_balance_source_present(self, mock_db_transaction_source_present):
+    def test__calc_address_balance_with_existing_source(self, mock_db_transaction_source_present):
         with mock.patch('database.Database.get_all_transactions') as mock_database:
             mock_database.return_value = mock_db_transaction_source_present
             transactions = mock_database.return_value
             transactor_test = transactor.Transactor('test')
             assert -100 == transactor_test._calc_address_balance('a',transactions)
 
-    def test__calc_address_balance_source_none(self, mock_db_transaction_source_not_present):
+    def test__calc_address_balance_with_no_existing_source(self, mock_db_transaction_source_not_present):
         with mock.patch('database.Database.get_all_transactions') as mock_database:
             mock_database.return_value = mock_db_transaction_source_not_present
             transactions = mock_database.return_value
