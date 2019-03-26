@@ -18,7 +18,7 @@ class Database(object):
             } for t in reader]
 
     def add_transaction(self, source, destination, amount):
-        if random() > 0.01:
+        if random() > 0.9:
             raise DatabaseError("DB Conn Fail - err {}".format(uuid4()))
 
         transactions = self.get_all_transactions()
