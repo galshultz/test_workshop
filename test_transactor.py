@@ -66,7 +66,7 @@ class TestAddTransactionFails(object):
         # with mock.patch('database.Database.add_transaction') as mock_add_transaction:
         #     with mock.patch('database.Database.get_all_transactions') as mock_get_all_trnasactions:
         mock_db().get_all_transactions.return_value = test_transaction_list
-        mock_db.add_transaction.side_effect = DatabaseError
+        mock_db().add_transaction.side_effect = DatabaseError
         transactor_test = transactor.Transactor('test')
 
         source = 'a'
@@ -74,7 +74,7 @@ class TestAddTransactionFails(object):
         amount = 1
         #need to see how can I test the retry attempts
         transactor_test.add_transaction(source, destination, amount)
-        3 == mock_db().add_transaction.call_count
+        assert mock_db.add_transaction.call_count == 3
 
 
 @mock.patch.object(transactor, 'Database')
