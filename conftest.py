@@ -1,7 +1,7 @@
 import pytest
 
 @pytest.fixture
-def get_all_transactions():
+def test_transaction_list():
     return [
                 {'source': None, 'amount': 100.0, 'destination': 'a'},
                 {'source': None, 'amount': 100.0, 'destination': 'b'},
